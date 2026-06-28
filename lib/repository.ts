@@ -2,6 +2,7 @@ import { getDb } from "./db";
 import { renderBody } from "./markdown";
 
 export type Status = "draft" | "published";
+export type Priority = "low" | "normal" | "high";
 
 export interface NewsItem {
   id: number;
@@ -9,6 +10,7 @@ export interface NewsItem {
   body_markdown: string;
   body_html: string;
   author: string;
+  priority: Priority;
   status: Status;
   created_at: string;
   updated_at: string;
@@ -21,6 +23,7 @@ export function createItem(
   title: string,
   body: string,
   author: string,
+  priority: Priority,
   status: Status,
 ): number {
   const ts = now();
@@ -29,10 +32,10 @@ export function createItem(
   const info = getDb()
     .prepare(
       `INSERT INTO news_item
-         (title, body_markdown, body_html, author, status, created_at, updated_at, published_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (title, body_markdown, body_html, author, priority, status, created_at, updated_at, published_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
-    .run(title, body, html, author, status, ts, ts, publishedAt);
+    .run(title, body, html, author, priority, status, ts, ts, publishedAt);
   return Number(info.lastInsertRowid);
 }
 
@@ -41,6 +44,7 @@ export function updateItem(
   title: string,
   body: string,
   author: string,
+  priority: Priority,
   status: Status,
 ): boolean {
   const existing = getItem(id);
@@ -52,11 +56,11 @@ export function updateItem(
   getDb()
     .prepare(
       `UPDATE news_item
-         SET title = ?, body_markdown = ?, body_html = ?, author = ?, status = ?,
-             updated_at = ?, published_at = ?
+         SET title = ?, body_markdown = ?, body_html = ?, author = ?, priority = ?,
+             status = ?, updated_at = ?, published_at = ?
        WHERE id = ?`,
     )
-    .run(title, body, html, author, status, ts, publishedAt, id);
+    .run(title, body, html, author, priority, status, ts, publishedAt, id);
   return true;
 }
 

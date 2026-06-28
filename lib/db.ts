@@ -16,6 +16,7 @@ export function getDb(): Database.Database {
         body_markdown TEXT NOT NULL DEFAULT '',
         body_html     TEXT NOT NULL DEFAULT '',
         author        TEXT NOT NULL DEFAULT '',
+        priority      TEXT NOT NULL DEFAULT 'normal',
         status        TEXT NOT NULL DEFAULT 'draft'
                            CHECK (status IN ('draft', 'published')),
         created_at    TEXT NOT NULL,
@@ -32,6 +33,11 @@ export function getDb(): Database.Database {
       .all() as { name: string }[];
     if (!cols.some((c) => c.name === "author")) {
       db.exec(`ALTER TABLE news_item ADD COLUMN author TEXT NOT NULL DEFAULT ''`);
+    }
+    if (!cols.some((c) => c.name === "priority")) {
+      db.exec(
+        `ALTER TABLE news_item ADD COLUMN priority TEXT NOT NULL DEFAULT 'normal'`,
+      );
     }
 
     globalForDb.__wireDb = db;

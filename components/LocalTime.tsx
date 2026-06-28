@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const LOCALE = "en-GB";
+
 function relative(d: Date): string {
   const s = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
   if (s < 60) return "just now";
@@ -11,17 +13,17 @@ function relative(d: Date): string {
   if (h < 24) return `${h}h ago`;
   const days = Math.floor(h / 24);
   if (days < 7) return `${days}d ago`;
-  return d.toLocaleDateString([], { day: "2-digit", month: "short", year: "numeric" });
+  return absolute(d, false);
 }
 
 function absolute(d: Date, withTime: boolean): string {
-  const date = d.toLocaleDateString([], {
-    day: "2-digit",
-    month: "short",
+  const date = d.toLocaleDateString(LOCALE, {
+    day: "numeric",
+    month: "long",
     year: "numeric",
   });
   if (!withTime) return date;
-  const time = d.toLocaleTimeString([], {
+  const time = d.toLocaleTimeString(LOCALE, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -57,7 +59,7 @@ export default function LocalTime({
   }, [iso, mode]);
 
   return (
-    <time dateTime={iso} title={iso} suppressHydrationWarning>
+    <time dateTime={iso} title={iso} dir="auto" suppressHydrationWarning>
       {text}
     </time>
   );

@@ -34,7 +34,7 @@ export default async function ArticlePage({ params }: Params) {
             <div className="article-meta" style={{ marginTop: "1rem" }}>
               {item.author ? (
                 <>
-                  <span dir="auto">By {item.author}</span>
+                  <span dir="auto">{item.author}</span>
                   <span className="muted">·</span>
                 </>
               ) : null}
@@ -44,6 +44,9 @@ export default async function ArticlePage({ params }: Params) {
                   mode="datetime"
                 />
               </span>
+              {item.priority === "high" && (
+                <span className="prio prio-high">High importance</span>
+              )}
             </div>
             <h1 className="article-title" dir="auto">
               {item.title}

@@ -29,7 +29,7 @@ export default async function LoginPage({ searchParams }: Props) {
             <p>Enter the editor password to manage posts.</p>
             {error ? (
               <div className="form-error">
-                <Icon name="unpublish" />
+                <Icon name="error" />
                 That password didn&rsquo;t match. Try again.
               </div>
             ) : null}

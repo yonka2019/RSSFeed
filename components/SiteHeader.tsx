@@ -31,9 +31,11 @@ export default async function SiteHeader() {
         </a>
 
         <div className="appbar-actions">
-          <a className="nav-link hide-sm" href="/feed/rss.xml">RSS</a>
-          <a className="nav-link hide-sm" href="/feed/atom.xml">Atom</a>
-          <a className="nav-link hide-sm" href="/feed/feed.json">JSON</a>
+          <div className="feed-box hide-sm">
+            <a href="/feed/rss.xml">RSS</a>
+            <a href="/feed/atom.xml">Atom</a>
+            <a href="/feed/feed.json">JSON</a>
+          </div>
           {authed ? (
             <>
               <a className="nav-link" href="/admin">Desk</a>

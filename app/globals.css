@@ -27,6 +27,10 @@
   --accent-container: #103d38;
   --on-accent-container: #aef0ea;
 
+  --rss: #ff9a52;
+  --rss-box: rgba(255, 138, 61, 0.14);
+  --rss-box-hover: rgba(255, 138, 61, 0.26);
+
   --error: #ffb4ab;
 
   --r-xs: 6px;
@@ -186,6 +190,25 @@ button {
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.06);
   color: var(--on-surface);
+}
+.feed-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  background: var(--rss-box);
+  border-radius: var(--r-full);
+  padding: 0.15rem;
+}
+.feed-box a {
+  color: var(--rss);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--r-full);
+  transition: background 0.15s ease;
+}
+.feed-box a:hover {
+  background: var(--rss-box-hover);
 }
 
 /* ============================================================
@@ -432,6 +455,52 @@ button {
   overflow: hidden;
 }
 
+/* feed controls (search / date / sort) */
+.controls {
+  max-width: var(--feed);
+  margin: 0 auto 1.5rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.controls .field-search {
+  flex: 1;
+  min-width: 9rem;
+}
+.controls input,
+.controls select {
+  background: var(--surface-c-low);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--on-surface);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.8rem;
+  height: 2.5rem;
+}
+.controls input::placeholder {
+  color: var(--on-surface-variant);
+}
+.controls input:focus,
+.controls select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.controls input[type="date"] {
+  color-scheme: dark;
+}
+.controls-clear {
+  display: inline-flex;
+  align-items: center;
+  color: var(--on-surface-variant);
+  font-size: 0.85rem;
+  padding: 0 0.5rem;
+}
+.controls-clear:hover {
+  color: var(--primary);
+}
+
 /* ============================================================
    Subscribe
    ============================================================ */
@@ -463,6 +532,9 @@ button {
   width: 4.5rem;
   flex: none;
   justify-content: center;
+  background: var(--rss-box);
+  color: var(--rss);
+  border-color: transparent;
 }
 .feed-url {
   flex: 1;
@@ -622,6 +694,39 @@ button {
   color: var(--error);
   font-size: 0.85rem;
   margin: 0.75rem 0;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--on-surface);
+  user-select: none;
+}
+.checkbox input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.prio {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--r-full);
+}
+.prio-high {
+  background: rgba(255, 90, 90, 0.16);
+  color: #ff8a8a;
+}
+.prio-low {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--on-surface-variant);
 }
 
 /* editor */

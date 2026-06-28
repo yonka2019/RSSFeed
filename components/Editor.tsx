@@ -11,12 +11,14 @@ export default function Editor({
   initialTitle = "",
   initialBody = "",
   initialAuthor = "",
+  initialPriority = "normal",
   notice,
 }: {
   id?: number;
   initialTitle?: string;
   initialBody?: string;
   initialAuthor?: string;
+  initialPriority?: string;
   notice?: string;
 }) {
   const [title, setTitle] = useState(initialTitle);
@@ -29,7 +31,7 @@ export default function Editor({
 
       {notice ? (
         <div className="form-error">
-          <Icon name="unpublish" />
+          <Icon name="error" />
           {notice}
         </div>
       ) : null}
@@ -56,6 +58,16 @@ export default function Editor({
           dir="auto"
         />
         <span className="field-label">Author</span>
+      </label>
+
+      <label className="checkbox">
+        <input
+          type="checkbox"
+          name="priority"
+          value="high"
+          defaultChecked={initialPriority === "high"}
+        />
+        <span>High importance</span>
       </label>
 
       <label className="field">

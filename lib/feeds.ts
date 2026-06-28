@@ -13,6 +13,12 @@ function permalink(item: NewsItem): string {
   return `${config.siteUrl}/news/${item.id}`;
 }
 
+// High-priority items get a [High] prefix so the priority is visible in any
+// consumer that shows the title (Grafana News panel, Confluence RSS macro).
+function feedTitle(item: NewsItem): string {
+  return item.priority === "high" ? `[!] ${item.title}` : item.title;
+}
+
 function itemDate(item: NewsItem): Date {
   return new Date(item.published_at ?? item.created_at);
 }
@@ -30,11 +36,12 @@ export function buildRss(items: NewsItem[]): string {
     .map((item) => {
       const link = permalink(item);
       return `    <item>
-      <title>${esc(item.title)}</title>
+      <title>${esc(feedTitle(item))}</title>
       <link>${esc(link)}</link>
       <guid isPermaLink="true">${esc(link)}</guid>
       <pubDate>${itemDate(item).toUTCString()}</pubDate>
       ${item.author ? `<dc:creator>${esc(item.author)}</dc:creator>` : ""}
+      ${item.priority !== "normal" ? `<category>${esc(item.priority)} priority</category>` : ""}
       <description>${esc(item.body_html)}</description>
     </item>`;
     })
@@ -67,10 +74,11 @@ export function buildAtom(items: NewsItem[]): string {
     .map((item) => {
       const link = permalink(item);
       return `  <entry>
-    <title>${esc(item.title)}</title>
+    <title>${esc(feedTitle(item))}</title>
     <id>${esc(link)}</id>
     <link href="${esc(link)}" rel="alternate" type="text/html" />
     ${item.author ? `<author><name>${esc(item.author)}</name></author>` : ""}
+    ${item.priority !== "normal" ? `<category term="${esc(item.priority)}" label="${esc(item.priority)} priority" />` : ""}
     <published>${itemDate(item).toISOString()}</published>
     <updated>${new Date(item.updated_at).toISOString()}</updated>
     <content type="html">${esc(item.body_html)}</content>
@@ -104,11 +112,12 @@ export function buildJson(items: NewsItem[]): object {
     items: items.map((item) => ({
       id: permalink(item),
       url: permalink(item),
-      title: item.title,
+      title: feedTitle(item),
       content_html: item.body_html,
       date_published: itemDate(item).toISOString(),
       date_modified: new Date(item.updated_at).toISOString(),
       ...(item.author ? { authors: [{ name: item.author }] } : {}),
+      ...(item.priority !== "normal" ? { tags: [`${item.priority} priority`] } : {}),
     })),
   };
 }

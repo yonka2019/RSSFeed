@@ -29,6 +29,8 @@ export async function saveDispatch(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "");
   const author = String(formData.get("author") ?? "").trim();
+  const priority: repo.Priority =
+    formData.get("priority") === "high" ? "high" : "normal";
   const intent = String(formData.get("intent") ?? "draft");
   const status: repo.Status = intent === "publish" ? "published" : "draft";
 
@@ -37,9 +39,9 @@ export async function saveDispatch(formData: FormData) {
   }
 
   if (idRaw) {
-    repo.updateItem(Number(idRaw), title, body, author, status);
+    repo.updateItem(Number(idRaw), title, body, author, priority, status);
   } else {
-    repo.createItem(title, body, author, status);
+    repo.createItem(title, body, author, priority, status);
   }
   refresh();
   redirect("/admin");
