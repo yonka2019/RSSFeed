@@ -35,7 +35,9 @@ def login():
         if check_password_hash(current_app.config["ADMIN_PASSWORD_HASH"], password):
             session["logged_in"] = True
             nxt = request.args.get("next")
-            if nxt and nxt.startswith("/"):
+            # Only allow same-site relative paths; reject protocol-relative
+            # ("//host") and backslash tricks to prevent open redirects.
+            if nxt and nxt.startswith("/") and not nxt.startswith(("//", "/\\")):
                 return redirect(nxt)
             return redirect(url_for("admin.dashboard"))
         flash("Incorrect password.")
