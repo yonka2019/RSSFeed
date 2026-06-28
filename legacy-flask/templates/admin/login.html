@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Admin login — {{ site_title }}{% endblock %}
+
+{% block content %}
+  <h1>Admin login</h1>
+  <form method="post" class="form" action="{{ url_for('auth.login', next=request.args.get('next')) }}">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" autofocus required>
+    <div class="form-actions">
+      <button type="submit" class="button">Log in</button>
+    </div>
+  </form>
+{% endblock %}

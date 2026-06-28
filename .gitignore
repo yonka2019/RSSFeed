@@ -1,0 +1,32 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# database
+*.db
+*.db-wal
+*.db-shm
+
+# misc
+.DS_Store
+*.pem
+.env
+.env*.local
+
+# debug
+npm-debug.log*
+
+# legacy python app (kept for reference)
+legacy-flask/.venv/
+legacy-flask/__pycache__/
+legacy-flask/**/__pycache__/
+legacy-flask/.pytest_cache/
+.venv/
+__pycache__/
+.pytest_cache/

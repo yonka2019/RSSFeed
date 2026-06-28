@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item['title'] }} — {{ site_title }}{% endblock %}
+
+{% block content %}
+  <article class="article">
+    <h1>{{ item['title'] }}</h1>
+    <p class="meta">{{ item['published_at'][:10] if item['published_at'] }}</p>
+    <div class="article-body">
+      {{ item['body_html'] | safe }}
+    </div>
+  </article>
+  <p><a href="{{ url_for('public.index') }}">&larr; Back to all news</a></p>
+{% endblock %}

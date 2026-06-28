@@ -1,0 +1,27 @@
+{
+  "name": "rssfeed",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "seed": "node scripts/seed.mjs"
+  },
+  "dependencies": {
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "better-sqlite3": "^11.8.1",
+    "marked": "^14.1.4",
+    "sanitize-html": "^2.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/sanitize-html": "^2.13.0"
+  }
+}
