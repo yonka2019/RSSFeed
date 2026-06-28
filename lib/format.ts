@@ -1,5 +1,35 @@
 // Small presentation helpers shared by server and client components.
 
+import type { CSSProperties } from "react";
+
+/** Split a comma-separated label string into trimmed, non-empty labels. */
+export function parseLabels(raw: string): string[] {
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/** Inline style for a label badge, tinted by the label's remembered hue. */
+export function labelStyle(hue: number | undefined): CSSProperties | undefined {
+  if (hue == null) return undefined;
+  return {
+    background: `hsl(${hue} 55% 24%)`,
+    color: `hsl(${hue} 85% 84%)`,
+  };
+}
+
+/** Inline style for an inactive filter chip, tinted by the label's hue. */
+export function labelChipStyle(
+  hue: number | undefined,
+): CSSProperties | undefined {
+  if (hue == null) return undefined;
+  return {
+    color: `hsl(${hue} 80% 78%)`,
+    borderColor: `hsl(${hue} 45% 42%)`,
+  };
+}
+
 const MONTHS = [
   "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
   "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",

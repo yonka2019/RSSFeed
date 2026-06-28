@@ -5,7 +5,12 @@ import Icon from "@/components/Icon";
 import LocalTime from "@/components/LocalTime";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { getPublishedItem } from "@/lib/repository";
+import { labelStyle, parseLabels } from "@/lib/format";
+import {
+  ensureLabelColors,
+  getLabelColors,
+  getPublishedItem,
+} from "@/lib/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +26,10 @@ export default async function ArticlePage({ params }: Params) {
   const { id } = await params;
   const item = getPublishedItem(Number(id));
   if (!item) notFound();
+
+  const tags = parseLabels(item.label);
+  ensureLabelColors(tags);
+  const labelColors = getLabelColors();
 
   return (
     <div className="shell">
@@ -45,7 +54,21 @@ export default async function ArticlePage({ params }: Params) {
                 />
               </span>
               {item.priority === "high" && (
-                <span className="prio prio-high">High importance</span>
+                <span className="prio prio-high">Important</span>
+              )}
+              {tags.length > 0 && (
+                <span className="feed-tags">
+                  {tags.map((l) => (
+                    <span
+                      key={l}
+                      className="tag"
+                      style={labelStyle(labelColors[l])}
+                      dir="auto"
+                    >
+                      {l}
+                    </span>
+                  ))}
+                </span>
               )}
             </div>
             <h1 className="article-title" dir="auto">

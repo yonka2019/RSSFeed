@@ -35,6 +35,7 @@ export default async function EditPostPage({ params, searchParams }: Props) {
             initialTitle={item.title}
             initialBody={item.body_markdown}
             initialAuthor={item.author}
+            initialLabel={item.label}
             initialPriority={item.priority}
             notice={notice}
           />

@@ -501,6 +501,46 @@ button {
   color: var(--primary);
 }
 
+/* label filter row */
+.controls-range-sep {
+  color: var(--on-surface-variant);
+}
+
+.label-filters {
+  position: fixed;
+  top: 28vh;
+  right: 0.75rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.label-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 1.9rem;
+  padding: 0 0.8rem;
+  border-radius: var(--r-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border-strong);
+  color: var(--on-surface-variant);
+  background: transparent;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.label-chip:hover {
+  color: var(--on-surface);
+  border-color: var(--primary);
+}
+.label-chip.is-active {
+  background: var(--accent-container);
+  color: var(--on-accent-container);
+  border-color: transparent;
+}
+
 /* ============================================================
    Subscribe
    ============================================================ */
@@ -711,6 +751,43 @@ button {
   accent-color: var(--primary);
   cursor: pointer;
 }
+.checkbox-danger {
+  color: #ff6b6b;
+  font-weight: 700;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(255, 90, 90, 0.45);
+  border-radius: var(--r-sm);
+  background: rgba(255, 90, 90, 0.12);
+}
+.checkbox-danger input {
+  accent-color: #e5484d;
+}
+
+/* label badges pushed to the right of the meta row */
+.feed-tags {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* feed pagination */
+.pager {
+  max-width: var(--feed);
+  margin: 1.5rem auto 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.pager-status {
+  font-size: 0.85rem;
+  color: var(--on-surface-variant);
+}
+.btn.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
 
 .prio {
   font-size: 0.62rem;
@@ -725,6 +802,17 @@ button {
   color: #ff8a8a;
 }
 .prio-low {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--on-surface-variant);
+}
+
+.tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--r-full);
   background: rgba(255, 255, 255, 0.07);
   color: var(--on-surface-variant);
 }

@@ -1,0 +1,29 @@
+# dependencies & build output (rebuilt inside the image)
+node_modules
+.next
+out
+build
+
+# local database & secrets
+*.db
+*.db-wal
+*.db-shm
+.env
+.env*.local
+
+# vcs & docs
+.git
+.gitignore
+*.md
+docs
+
+# legacy reference app
+legacy-flask
+
+# misc / local tooling
+.DS_Store
+npm-debug.log*
+.playwright-cli
+verify-*.png
+Dockerfile
+.dockerignore

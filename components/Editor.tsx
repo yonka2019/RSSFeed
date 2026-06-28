@@ -11,6 +11,7 @@ export default function Editor({
   initialTitle = "",
   initialBody = "",
   initialAuthor = "",
+  initialLabel = "",
   initialPriority = "normal",
   notice,
 }: {
@@ -18,12 +19,14 @@ export default function Editor({
   initialTitle?: string;
   initialBody?: string;
   initialAuthor?: string;
+  initialLabel?: string;
   initialPriority?: string;
   notice?: string;
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [body, setBody] = useState(initialBody);
   const [author, setAuthor] = useState(initialAuthor);
+  const [label, setLabel] = useState(initialLabel);
 
   return (
     <form className="editor" action={saveDispatch}>
@@ -60,14 +63,25 @@ export default function Editor({
         <span className="field-label">Author</span>
       </label>
 
-      <label className="checkbox">
+      <label className="field">
+        <input
+          name="label"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder=" "
+          dir="auto"
+        />
+        <span className="field-label">Labels — comma-separated</span>
+      </label>
+
+      <label className="checkbox checkbox-danger">
         <input
           type="checkbox"
           name="priority"
           value="high"
           defaultChecked={initialPriority === "high"}
         />
-        <span>High importance</span>
+        <span>Important</span>
       </label>
 
       <label className="field">

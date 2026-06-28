@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { login, logout, requireAuth } from "@/lib/auth";
+import { parseLabels } from "@/lib/format";
 import * as repo from "@/lib/repository";
 
 function refresh() {
@@ -29,6 +30,10 @@ export async function saveDispatch(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "");
   const author = String(formData.get("author") ?? "").trim();
+  // Normalize the comma-separated labels: trim, drop blanks, de-duplicate.
+  const label = [
+    ...new Set(parseLabels(String(formData.get("label") ?? ""))),
+  ].join(", ");
   const priority: repo.Priority =
     formData.get("priority") === "high" ? "high" : "normal";
   const intent = String(formData.get("intent") ?? "draft");
@@ -39,9 +44,9 @@ export async function saveDispatch(formData: FormData) {
   }
 
   if (idRaw) {
-    repo.updateItem(Number(idRaw), title, body, author, priority, status);
+    repo.updateItem(Number(idRaw), title, body, author, label, priority, status);
   } else {
-    repo.createItem(title, body, author, priority, status);
+    repo.createItem(title, body, author, label, priority, status);
   }
   refresh();
   redirect("/admin");
