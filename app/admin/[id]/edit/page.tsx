@@ -4,7 +4,7 @@ import Editor from "@/components/Editor";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { requireAuth } from "@/lib/auth";
-import { getItem } from "@/lib/repository";
+import { getItem, listLabels } from "@/lib/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +37,7 @@ export default async function EditPostPage({ params, searchParams }: Props) {
             initialAuthor={item.author}
             initialLabel={item.label}
             initialPriority={item.priority}
+            allLabels={listLabels()}
             notice={notice}
           />
         </div>

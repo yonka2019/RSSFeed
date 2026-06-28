@@ -2,7 +2,7 @@ import Editor from "@/components/Editor";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { requireAuth } from "@/lib/auth";
-import { lastAuthor } from "@/lib/repository";
+import { lastAuthor, listLabels } from "@/lib/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +24,11 @@ export default async function NewPostPage({ searchParams }: Props) {
           <h1 className="headline" style={{ margin: "0.25rem 0 1.5rem" }}>
             Write a post
           </h1>
-          <Editor notice={notice} initialAuthor={lastAuthor()} />
+          <Editor
+            notice={notice}
+            initialAuthor={lastAuthor()}
+            allLabels={listLabels()}
+          />
         </div>
       </main>
       <SiteFooter />

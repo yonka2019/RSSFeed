@@ -763,6 +763,39 @@ button {
   accent-color: #e5484d;
 }
 
+/* label autocomplete */
+.field-combobox {
+  position: relative;
+}
+.suggestions {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--surface-c-low);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  max-height: 12rem;
+  overflow-y: auto;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+.suggestion {
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--r-sm);
+  font-size: 0.9rem;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+}
+.suggestion.is-active,
+.suggestion:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--on-surface);
+}
+
 /* label badges pushed to the right of the meta row */
 .feed-tags {
   margin-left: auto;
