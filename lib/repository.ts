@@ -154,11 +154,12 @@ export async function lastAuthor(): Promise<string> {
   return doc?.author ?? "";
 }
 
-export async function listPublished(): Promise<NewsItem[]> {
-  const docs = await (await newsCol())
+export async function listPublished(limit?: number): Promise<NewsItem[]> {
+  let cursor = (await newsCol())
     .find({ status: "published" })
-    .sort({ published_at: -1 })
-    .toArray();
+    .sort({ published_at: -1 });
+  if (limit && limit > 0) cursor = cursor.limit(limit);
+  const docs = await cursor.toArray();
   return docs.map(toNewsItem);
 }
 

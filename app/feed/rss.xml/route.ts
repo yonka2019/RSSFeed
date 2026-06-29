@@ -4,7 +4,7 @@ import { listPublished } from "@/lib/repository";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const xml = buildRss(await listPublished());
+  const xml = buildRss(await listPublished(15));
   return new Response(xml, {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",

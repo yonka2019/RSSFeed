@@ -4,7 +4,7 @@ import { listPublished } from "@/lib/repository";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const data = buildJson(await listPublished());
+  const data = buildJson(await listPublished(15));
   return new Response(JSON.stringify(data, null, 2), {
     headers: {
       "Content-Type": "application/feed+json; charset=utf-8",
