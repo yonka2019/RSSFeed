@@ -25,8 +25,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function thumbStyle(id: number) {
-  const hue = (id * 57) % 360;
+function thumbStyle(id: string) {
+  // Deterministic hue from the id string so each post keeps a stable color.
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  const hue = Math.abs(hash) % 360;
   return {
     background: `linear-gradient(135deg, hsl(${hue} 55% 42%), hsl(${(hue + 45) % 360} 60% 28%))`,
   };
@@ -54,10 +57,10 @@ export default async function Home({ searchParams }: Props) {
   const filtering = Boolean(q || from || to || label);
 
   const urls = feedUrls();
-  const allLabels = listLabels();
-  ensureLabelColors(allLabels); // backfill colors for any pre-existing labels
-  const labelColors = getLabelColors();
-  let items = listPublished(); // newest first
+  const allLabels = await listLabels();
+  await ensureLabelColors(allLabels); // backfill colors for any pre-existing labels
+  const labelColors = await getLabelColors();
+  let items = await listPublished(); // newest first
 
   if (q) {
     const needle = q.toLowerCase();

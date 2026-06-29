@@ -4,7 +4,7 @@ import { listPublished } from "@/lib/repository";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const xml = buildAtom(listPublished());
+  const xml = buildAtom(await listPublished());
   return new Response(xml, {
     headers: {
       "Content-Type": "application/atom+xml; charset=utf-8",

@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DeskPage() {
   await requireAuth();
-  const items = listAll();
+  const items = await listAll();
 
   return (
     <div className="shell">

@@ -16,7 +16,7 @@ export default function Editor({
   allLabels = [],
   notice,
 }: {
-  id?: number;
+  id?: string;
   initialTitle?: string;
   initialBody?: string;
   initialAuthor?: string;

@@ -18,18 +18,18 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
-  const item = getPublishedItem(Number(id));
+  const item = await getPublishedItem(id);
   return item ? { title: item.title } : {};
 }
 
 export default async function ArticlePage({ params }: Params) {
   const { id } = await params;
-  const item = getPublishedItem(Number(id));
+  const item = await getPublishedItem(id);
   if (!item) notFound();
 
   const tags = parseLabels(item.label);
-  ensureLabelColors(tags);
-  const labelColors = getLabelColors();
+  await ensureLabelColors(tags);
+  const labelColors = await getLabelColors();
 
   return (
     <div className="shell">

@@ -26,8 +26,8 @@ export default async function NewPostPage({ searchParams }: Props) {
           </h1>
           <Editor
             notice={notice}
-            initialAuthor={lastAuthor()}
-            allLabels={listLabels()}
+            initialAuthor={await lastAuthor()}
+            allLabels={await listLabels()}
           />
         </div>
       </main>

@@ -14,10 +14,13 @@ News panel and Confluence's RSS macro.
 
 ## Stack
 - **Next.js 15** (App Router, React 19, TypeScript)
-- **better-sqlite3** storage
+- **MongoDB** storage (native `mongodb` driver)
 - **Rubik** + **JetBrains Mono** via `next/font`
 
 ## Setup & run
+
+Requires a running MongoDB instance (local or Atlas). Set `MONGODB_URI` if it
+isn't on the default `mongodb://localhost:27017`.
 
 ```bash
 npm install
@@ -41,7 +44,8 @@ npm start
 |---|---|---|
 | `ADMIN_PASSWORD` | `admin` | Password for the desk |
 | `SECRET_KEY` | `dev-secret-change-me` | Signs the session cookie |
-| `DATABASE` | `news.db` | SQLite file path |
+| `MONGODB_URI` | `mongodb://localhost:27017` | MongoDB connection string |
+| `MONGODB_DB` | `rssfeed` | Database name |
 | `SITE_TITLE` | `RSSFeed` | Site / feed title |
 | `SITE_DESCRIPTION` | `A modern news feed with RSS, Atom and JSON.` | Tagline / feed description |
 | `SITE_URL` | `http://localhost:3000` | Public base URL (used in feed + permalink links) |

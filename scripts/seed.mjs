@@ -1,21 +1,9 @@
 // Seed a few sample posts so the feed isn't empty on first run.
 // Usage: npm run seed
-import Database from "better-sqlite3";
+import { MongoClient } from "mongodb";
 
-const db = new Database(process.env.DATABASE ?? "news.db");
-db.exec(`
-  CREATE TABLE IF NOT EXISTS news_item (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    body_markdown TEXT NOT NULL DEFAULT '',
-    body_html TEXT NOT NULL DEFAULT '',
-    author TEXT NOT NULL DEFAULT '',
-    status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published')),
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    published_at TEXT
-  );
-`);
+const uri = process.env.MONGODB_URI ?? "mongodb://localhost:27017";
+const dbName = process.env.MONGODB_DB ?? "rssfeed";
 
 function escapeHtml(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -29,12 +17,6 @@ function renderBody(text) {
     .filter(Boolean)
     .map((b) => `<p>${escapeHtml(b).replace(/\n/g, "<br>")}</p>`)
     .join("");
-}
-
-const count = db.prepare("SELECT COUNT(*) AS n FROM news_item").get().n;
-if (count > 0) {
-  console.log(`Skipped — ${count} item(s) already exist.`);
-  process.exit(0);
 }
 
 const posts = [
@@ -55,15 +37,37 @@ const posts = [
   },
 ];
 
-const stmt = db.prepare(
-  `INSERT INTO news_item
-     (title, body_markdown, body_html, author, status, created_at, updated_at, published_at)
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-);
+const client = new MongoClient(uri);
+try {
+  await client.connect();
+  const col = client.db(dbName).collection("news_item");
 
-posts.forEach((p, i) => {
-  const ts = new Date(Date.now() - (posts.length - 1 - i) * 3600_000).toISOString();
-  stmt.run(p.title, p.body, renderBody(p.body), p.author, "published", ts, ts, ts);
-});
+  const count = await col.countDocuments();
+  if (count > 0) {
+    console.log(`Skipped — ${count} item(s) already exist.`);
+    process.exit(0);
+  }
 
-console.log(`Seeded ${posts.length} posts.`);
+  const docs = posts.map((p, i) => {
+    const ts = new Date(
+      Date.now() - (posts.length - 1 - i) * 3600_000,
+    ).toISOString();
+    return {
+      title: p.title,
+      body_markdown: p.body,
+      body_html: renderBody(p.body),
+      author: p.author,
+      label: "",
+      priority: "normal",
+      status: "published",
+      created_at: ts,
+      updated_at: ts,
+      published_at: ts,
+    };
+  });
+
+  await col.insertMany(docs);
+  console.log(`Seeded ${docs.length} posts.`);
+} finally {
+  await client.close();
+}

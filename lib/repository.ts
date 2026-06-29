@@ -1,3 +1,5 @@
+import { ObjectId, type Collection, type WithId } from "mongodb";
+
 import { getDb } from "./db";
 import { parseLabels } from "./format";
 import { renderBody } from "./markdown";
@@ -6,7 +8,7 @@ export type Status = "draft" | "published";
 export type Priority = "low" | "normal" | "high";
 
 export interface NewsItem {
-  id: number;
+  id: string;
   title: string;
   body_markdown: string;
   body_html: string;
@@ -19,143 +21,191 @@ export interface NewsItem {
   published_at: string | null;
 }
 
+// Stored shape — same as NewsItem but keyed by Mongo's ObjectId `_id`.
+type NewsDoc = Omit<NewsItem, "id">;
+interface LabelColorDoc {
+  _id: string; // the label text is its own natural key
+  hue: number;
+}
+
 const now = () => new Date().toISOString();
 
-export function createItem(
+async function newsCol(): Promise<Collection<NewsDoc>> {
+  return (await getDb()).collection<NewsDoc>("news_item");
+}
+async function labelCol(): Promise<Collection<LabelColorDoc>> {
+  return (await getDb()).collection<LabelColorDoc>("label_color");
+}
+
+function toNewsItem(doc: WithId<NewsDoc>): NewsItem {
+  const { _id, ...rest } = doc;
+  return { id: _id.toString(), ...rest };
+}
+
+// Translate a route-supplied id string into an ObjectId, or null if malformed.
+function toObjectId(id: string): ObjectId | null {
+  return ObjectId.isValid(id) ? new ObjectId(id) : null;
+}
+
+export async function createItem(
   title: string,
   body: string,
   author: string,
   label: string,
   priority: Priority,
   status: Status,
-): number {
-  ensureLabelColors(parseLabels(label));
+): Promise<string> {
+  await ensureLabelColors(parseLabels(label));
   const ts = now();
-  const html = renderBody(body);
-  const publishedAt = status === "published" ? ts : null;
-  const info = getDb()
-    .prepare(
-      `INSERT INTO news_item
-         (title, body_markdown, body_html, author, label, priority, status, created_at, updated_at, published_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    )
-    .run(title, body, html, author, label, priority, status, ts, ts, publishedAt);
-  return Number(info.lastInsertRowid);
+  const doc: NewsDoc = {
+    title,
+    body_markdown: body,
+    body_html: renderBody(body),
+    author,
+    label,
+    priority,
+    status,
+    created_at: ts,
+    updated_at: ts,
+    published_at: status === "published" ? ts : null,
+  };
+  const result = await (await newsCol()).insertOne(doc as WithId<NewsDoc>);
+  return result.insertedId.toString();
 }
 
-export function updateItem(
-  id: number,
+export async function updateItem(
+  id: string,
   title: string,
   body: string,
   author: string,
   label: string,
   priority: Priority,
   status: Status,
-): boolean {
-  const existing = getItem(id);
+): Promise<boolean> {
+  const existing = await getItem(id);
   if (!existing) return false;
-  ensureLabelColors(parseLabels(label));
-  const ts = now();
-  const html = renderBody(body);
-  let publishedAt = existing.published_at;
-  if (status === "published" && !publishedAt) publishedAt = ts;
-  getDb()
-    .prepare(
-      `UPDATE news_item
-         SET title = ?, body_markdown = ?, body_html = ?, author = ?, label = ?, priority = ?,
-             status = ?, updated_at = ?, published_at = ?
-       WHERE id = ?`,
-    )
-    .run(title, body, html, author, label, priority, status, ts, publishedAt, id);
-  return true;
-}
-
-export function setStatus(id: number, status: Status): boolean {
-  const existing = getItem(id);
-  if (!existing) return false;
+  await ensureLabelColors(parseLabels(label));
   const ts = now();
   let publishedAt = existing.published_at;
   if (status === "published" && !publishedAt) publishedAt = ts;
-  getDb()
-    .prepare(
-      `UPDATE news_item SET status = ?, updated_at = ?, published_at = ? WHERE id = ?`,
-    )
-    .run(status, ts, publishedAt, id);
+  await (await newsCol()).updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        title,
+        body_markdown: body,
+        body_html: renderBody(body),
+        author,
+        label,
+        priority,
+        status,
+        updated_at: ts,
+        published_at: publishedAt,
+      },
+    },
+  );
   return true;
 }
 
-export function deleteItem(id: number): void {
-  getDb().prepare(`DELETE FROM news_item WHERE id = ?`).run(id);
+export async function setStatus(id: string, status: Status): Promise<boolean> {
+  const existing = await getItem(id);
+  if (!existing) return false;
+  const ts = now();
+  let publishedAt = existing.published_at;
+  if (status === "published" && !publishedAt) publishedAt = ts;
+  await (await newsCol()).updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { status, updated_at: ts, published_at: publishedAt } },
+  );
+  return true;
 }
 
-export function getItem(id: number): NewsItem | undefined {
-  return getDb()
-    .prepare(`SELECT * FROM news_item WHERE id = ?`)
-    .get(id) as NewsItem | undefined;
+export async function deleteItem(id: string): Promise<void> {
+  const oid = toObjectId(id);
+  if (!oid) return;
+  await (await newsCol()).deleteOne({ _id: oid });
 }
 
-export function getPublishedItem(id: number): NewsItem | undefined {
-  return getDb()
-    .prepare(`SELECT * FROM news_item WHERE id = ? AND status = 'published'`)
-    .get(id) as NewsItem | undefined;
+export async function getItem(id: string): Promise<NewsItem | undefined> {
+  const oid = toObjectId(id);
+  if (!oid) return undefined;
+  const doc = await (await newsCol()).findOne({ _id: oid });
+  return doc ? toNewsItem(doc) : undefined;
+}
+
+export async function getPublishedItem(
+  id: string,
+): Promise<NewsItem | undefined> {
+  const oid = toObjectId(id);
+  if (!oid) return undefined;
+  const doc = await (await newsCol()).findOne({
+    _id: oid,
+    status: "published",
+  });
+  return doc ? toNewsItem(doc) : undefined;
 }
 
 /** The author of the most recent post, to prefill the editor. */
-export function lastAuthor(): string {
-  const row = getDb()
-    .prepare(
-      `SELECT author FROM news_item WHERE author <> '' ORDER BY created_at DESC LIMIT 1`,
-    )
-    .get() as { author: string } | undefined;
-  return row?.author ?? "";
+export async function lastAuthor(): Promise<string> {
+  const doc = await (await newsCol()).findOne(
+    { author: { $ne: "" } },
+    { sort: { created_at: -1 }, projection: { author: 1 } },
+  );
+  return doc?.author ?? "";
 }
 
-export function listPublished(): NewsItem[] {
-  return getDb()
-    .prepare(
-      `SELECT * FROM news_item WHERE status = 'published' ORDER BY published_at DESC`,
-    )
-    .all() as NewsItem[];
+export async function listPublished(): Promise<NewsItem[]> {
+  const docs = await (await newsCol())
+    .find({ status: "published" })
+    .sort({ published_at: -1 })
+    .toArray();
+  return docs.map(toNewsItem);
 }
 
-export function listAll(): NewsItem[] {
-  return getDb()
-    .prepare(`SELECT * FROM news_item ORDER BY created_at DESC, id DESC`)
-    .all() as NewsItem[];
+export async function listAll(): Promise<NewsItem[]> {
+  const docs = await (await newsCol())
+    .find()
+    .sort({ created_at: -1, _id: -1 })
+    .toArray();
+  return docs.map(toNewsItem);
 }
 
 /**
  * Assign a remembered random color (hue) to any label seen for the first time.
- * Existing labels keep their color — INSERT OR IGNORE never overwrites.
+ * Existing labels keep their color — $setOnInsert never overwrites.
  */
-export function ensureLabelColors(labels: string[]): void {
-  const insert = getDb().prepare(
-    `INSERT OR IGNORE INTO label_color (label, hue) VALUES (?, ?)`,
+export async function ensureLabelColors(labels: string[]): Promise<void> {
+  if (labels.length === 0) return;
+  const col = await labelCol();
+  await Promise.all(
+    labels.map((l) =>
+      col.updateOne(
+        { _id: l },
+        { $setOnInsert: { hue: Math.floor(Math.random() * 360) } },
+        { upsert: true },
+      ),
+    ),
   );
-  for (const l of labels) {
-    insert.run(l, Math.floor(Math.random() * 360));
-  }
 }
 
 /** Map of label -> hue for every label that has a remembered color. */
-export function getLabelColors(): Record<string, number> {
-  const rows = getDb()
-    .prepare(`SELECT label, hue FROM label_color`)
-    .all() as { label: string; hue: number }[];
+export async function getLabelColors(): Promise<Record<string, number>> {
+  const docs = await (await labelCol()).find().toArray();
   const map: Record<string, number> = {};
-  for (const r of rows) map[r.label] = r.hue;
+  for (const d of docs) map[d._id] = d.hue;
   return map;
 }
 
 /** Distinct non-empty labels across published items, for the feed filter row. */
-export function listLabels(): string[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT label FROM news_item WHERE status = 'published' AND label <> ''`,
+export async function listLabels(): Promise<string[]> {
+  const docs = await (await newsCol())
+    .find(
+      { status: "published", label: { $ne: "" } },
+      { projection: { label: 1 } },
     )
-    .all() as { label: string }[];
+    .toArray();
   const set = new Set<string>();
-  for (const row of rows) for (const l of parseLabels(row.label)) set.add(l);
+  for (const doc of docs) for (const l of parseLabels(doc.label)) set.add(l);
   return [...set].sort((a, b) =>
     a.localeCompare(b, undefined, { sensitivity: "base" }),
   );

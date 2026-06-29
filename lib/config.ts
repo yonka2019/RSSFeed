@@ -3,7 +3,8 @@
 export const config = {
   adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
   secret: process.env.SECRET_KEY ?? "dev-secret-change-me",
-  dbPath: process.env.DATABASE ?? "news.db",
+  mongoUri: process.env.MONGODB_URI ?? "mongodb://localhost:27017",
+  mongoDbName: process.env.MONGODB_DB ?? "rssfeed",
   siteTitle: process.env.SITE_TITLE ?? "RSSFeed",
   siteDescription:
     process.env.SITE_DESCRIPTION ?? "A modern news feed with RSS, Atom and JSON.",

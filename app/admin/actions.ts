@@ -44,28 +44,28 @@ export async function saveDispatch(formData: FormData) {
   }
 
   if (idRaw) {
-    repo.updateItem(Number(idRaw), title, body, author, label, priority, status);
+    await repo.updateItem(String(idRaw), title, body, author, label, priority, status);
   } else {
-    repo.createItem(title, body, author, label, priority, status);
+    await repo.createItem(title, body, author, label, priority, status);
   }
   refresh();
   redirect("/admin");
 }
 
-export async function publishAction(id: number) {
+export async function publishAction(id: string) {
   await requireAuth();
-  repo.setStatus(id, "published");
+  await repo.setStatus(id, "published");
   refresh();
 }
 
-export async function unpublishAction(id: number) {
+export async function unpublishAction(id: string) {
   await requireAuth();
-  repo.setStatus(id, "draft");
+  await repo.setStatus(id, "draft");
   refresh();
 }
 
-export async function deleteAction(id: number) {
+export async function deleteAction(id: string) {
   await requireAuth();
-  repo.deleteItem(id);
+  await repo.deleteItem(id);
   refresh();
 }

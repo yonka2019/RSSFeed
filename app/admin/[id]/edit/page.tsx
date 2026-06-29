@@ -16,7 +16,7 @@ type Props = {
 export default async function EditPostPage({ params, searchParams }: Props) {
   await requireAuth();
   const { id } = await params;
-  const item = getItem(Number(id));
+  const item = await getItem(id);
   if (!item) notFound();
   const { error } = await searchParams;
   const notice = error === "title" ? "A title is required." : undefined;
@@ -37,7 +37,7 @@ export default async function EditPostPage({ params, searchParams }: Props) {
             initialAuthor={item.author}
             initialLabel={item.label}
             initialPriority={item.priority}
-            allLabels={listLabels()}
+            allLabels={await listLabels()}
             notice={notice}
           />
         </div>
