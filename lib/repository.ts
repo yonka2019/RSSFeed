@@ -163,6 +163,24 @@ export async function listPublished(limit?: number): Promise<NewsItem[]> {
   return docs.map(toNewsItem);
 }
 
+/**
+ * A cheap fingerprint of the published feed. Changes whenever an item is
+ * added, removed, unpublished, or edited — so clients can poll it to learn
+ * that the feed they're viewing is now stale (e.g. a teammate published on
+ * another machine) without re-fetching the whole list.
+ */
+export async function feedVersion(): Promise<string> {
+  const col = await newsCol();
+  const [count, latest] = await Promise.all([
+    col.countDocuments({ status: "published" }),
+    col.findOne(
+      { status: "published" },
+      { sort: { updated_at: -1 }, projection: { updated_at: 1 } },
+    ),
+  ]);
+  return `${count}:${latest?.updated_at ?? "0"}`;
+}
+
 export async function listAll(): Promise<NewsItem[]> {
   const docs = await (await newsCol())
     .find()

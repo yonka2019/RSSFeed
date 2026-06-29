@@ -6,7 +6,7 @@ export default function SiteFooter() {
     <footer className="footer">
       <div className="footer-inner">
         <span>
-          {config.siteTitle} · © {year}
+          {config.siteTitle} · © {year} · by yonka
         </span>
         <span>
           <a href="/feed/rss.xml">RSS</a> · <a href="/feed/atom.xml">Atom</a> ·{" "}

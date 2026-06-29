@@ -109,9 +109,72 @@ button {
 
 /* ---- layout ---- */
 .shell {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* ---- ambient aurora (animated colorful glow behind everything) ---- */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora-blob {
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.2;
+  will-change: transform;
+}
+.aurora-1 {
+  top: -22vmax;
+  left: -12vmax;
+  background: radial-gradient(circle at 30% 30%, #5865f2, transparent 62%);
+  animation: aurora-a 24s ease-in-out infinite alternate;
+}
+.aurora-2 {
+  right: -14vmax;
+  bottom: -24vmax;
+  background: radial-gradient(circle at 70% 40%, #7de3da, transparent 62%);
+  animation: aurora-b 30s ease-in-out infinite alternate;
+}
+.aurora-3 {
+  top: 28%;
+  left: 34%;
+  opacity: 0.12;
+  background: radial-gradient(circle at 50% 50%, #ff9a52, transparent 65%);
+  animation: aurora-c 36s ease-in-out infinite alternate;
+}
+@keyframes aurora-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(12vmax, 9vmax, 0) scale(1.18);
+  }
+}
+@keyframes aurora-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(-10vmax, -8vmax, 0) scale(0.95);
+  }
+}
+@keyframes aurora-c {
+  from {
+    transform: translate3d(0, 0, 0) scale(0.9);
+  }
+  to {
+    transform: translate3d(-9vmax, 7vmax, 0) scale(1.25);
+  }
 }
 .page {
   width: 100%;
@@ -191,26 +254,6 @@ button {
   background: rgba(255, 255, 255, 0.06);
   color: var(--on-surface);
 }
-.feed-box {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.1rem;
-  background: var(--rss-box);
-  border-radius: var(--r-full);
-  padding: 0.15rem;
-}
-.feed-box a {
-  color: var(--rss);
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--r-full);
-  transition: background 0.15s ease;
-}
-.feed-box a:hover {
-  background: var(--rss-box-hover);
-}
-
 /* ============================================================
    Buttons
    ============================================================ */
@@ -384,6 +427,19 @@ button {
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   transition: background 0.16s ease, border-color 0.16s ease, transform 0.12s ease;
+  /* `backwards` holds the hidden state through the per-item delay, then frees
+     the element so hover/active transforms keep working after it lands. */
+  animation: item-in 0.45s ease backwards;
+}
+@keyframes item-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .feed-item:hover {
   background: var(--surface-c);
@@ -1021,6 +1077,63 @@ button {
 }
 .footer-inner a:hover {
   color: var(--primary);
+}
+
+/* ============================================================
+   Live update toast (shown when the feed auto-refreshes)
+   ============================================================ */
+.live-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--r-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #5865f2, #7de3da, #ff9a52);
+  background-size: 200% 100%;
+  box-shadow: 0 10px 34px -8px rgba(88, 101, 242, 0.7);
+  animation: toast-in 0.35s ease both, toast-shimmer 5s linear infinite;
+}
+.live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  animation: live-pulse 1.6s ease-out infinite;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes toast-shimmer {
+  to {
+    background-position: 200% 0;
+  }
+}
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
 }
 
 /* ============================================================

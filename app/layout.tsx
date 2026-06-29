@@ -45,7 +45,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${rubik.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <div className="aurora" aria-hidden="true">
+          <span className="aurora-blob aurora-1" />
+          <span className="aurora-blob aurora-2" />
+          <span className="aurora-blob aurora-3" />
+        </div>
+        {children}
+      </body>
     </html>
   );
 }

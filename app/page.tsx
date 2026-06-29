@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 
+import AutoRefresh from "@/components/AutoRefresh";
 import FeedChannels from "@/components/FeedChannels";
 import Icon from "@/components/Icon";
 import LocalTime from "@/components/LocalTime";
@@ -17,6 +18,7 @@ import {
 } from "@/lib/format";
 import {
   ensureLabelColors,
+  feedVersion,
   getLabelColors,
   listLabels,
   listPublished,
@@ -57,6 +59,7 @@ export default async function Home({ searchParams }: Props) {
   const filtering = Boolean(q || from || to || label);
 
   const urls = feedUrls();
+  const version = await feedVersion();
   const allLabels = await listLabels();
   await ensureLabelColors(allLabels); // backfill colors for any pre-existing labels
   const labelColors = await getLabelColors();
@@ -134,6 +137,7 @@ export default async function Home({ searchParams }: Props) {
 
   return (
     <div className="shell">
+      <AutoRefresh version={version} />
       <SiteHeader />
       <main className="main">
         <div className="page">
@@ -217,7 +221,7 @@ export default async function Home({ searchParams }: Props) {
               groups.map((group) => (
                 <Fragment key={group.key}>
                   <div className="feed-day label">{group.label}</div>
-                  {group.items.map((item) => {
+                  {group.items.map((item, i) => {
                     const iso = item.published_at ?? item.created_at;
                     const tags = parseLabels(item.label);
                     return (
@@ -225,6 +229,9 @@ export default async function Home({ searchParams }: Props) {
                         key={item.id}
                         className="feed-item"
                         href={`/news/${item.id}`}
+                        style={{
+                          animationDelay: `${Math.min(i, 10) * 45}ms`,
+                        }}
                       >
                         <span
                           className="feed-thumb"
