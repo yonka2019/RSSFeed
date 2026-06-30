@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 type Item = { id: string; title: string };
 
-const SPEED = 55; // px per second — constant regardless of how much content
+const SPEED = 40; // px per second — constant regardless of how much content
 
 /**
  * Seamless, gap-free marquee. The headlines are rendered as one "group", then
@@ -24,7 +24,10 @@ export default function TickerMarquee({ items }: { items: Item[] }) {
       const vp = viewportRef.current;
       const grp = groupRef.current;
       if (!vp || !grp) return;
-      const gw = grp.scrollWidth;
+      // Fractional width (not scrollWidth, which rounds to an integer) so the
+      // per-loop shift lands exactly on the next identical group — an integer
+      // shift leaves a sub-pixel gap that pops on every wrap and reads as lag.
+      const gw = grp.getBoundingClientRect().width;
       if (gw === 0) return;
       setGroupW(gw);
       // Enough groups so the viewport stays covered even at the loop's end:

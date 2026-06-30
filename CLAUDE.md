@@ -85,11 +85,13 @@ panel and Confluence's RSS macro. Dark-only theme, Hebrew/RTL supported.
 
 ## UI animation
 
-- **Aurora background**: three blurred, slowly drifting colored blobs
-  (`.aurora` markup in `app/layout.tsx`, styles in `globals.css`) sit at `z-index:0`
-  behind `.shell` (`z-index:1`). Uses the brand palette (indigo `#5865f2`, teal
-  `#7de3da`, orange `#ff9a52`) at low opacity — deliberately subtle, not a generic
-  rainbow.
+- **Aurora background**: three blurred colored blobs (`.aurora` markup in
+  `app/layout.tsx`, styles in `globals.css`) sit at `z-index:0` behind `.shell`
+  (`z-index:1`). Uses the brand palette (indigo `#5865f2`, teal `#7de3da`, orange
+  `#ff9a52`) at low opacity — deliberately subtle, not a generic rainbow. The glow
+  is **static (no animation)** on purpose: a drifting blurred layer competed with
+  the ticker for GPU frames and caused scroll jank. Don't re-add aurora `animation`
+  without re-checking ticker smoothness.
 - **Feed items** fade/slide in with a per-item stagger (`animation-delay` set inline
   in `app/page.tsx`, `item-in` keyframes). Uses `backwards` fill (not `forwards`) so
   hover/active transforms keep working after entry.

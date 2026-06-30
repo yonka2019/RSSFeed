@@ -129,52 +129,29 @@ button {
   width: 55vmax;
   height: 55vmax;
   border-radius: 50%;
-  filter: blur(110px);
+  filter: blur(80px);
   opacity: 0.2;
-  will-change: transform;
 }
+/* Static glow — intentionally NOT animated. A drifting blurred layer competes
+   with the ticker for GPU frames (re-raster on scale, layer churn on move), so
+   the aurora stays put and the ticker owns the compositor. The colors remain;
+   only the motion was dropped. To re-add drift, restore `animation:` here plus
+   translate3d keyframes — but expect the ticker to compete for frames again. */
 .aurora-1 {
   top: -22vmax;
   left: -12vmax;
   background: radial-gradient(circle at 30% 30%, #5865f2, transparent 62%);
-  animation: aurora-a 24s ease-in-out infinite alternate;
 }
 .aurora-2 {
   right: -14vmax;
   bottom: -24vmax;
   background: radial-gradient(circle at 70% 40%, #7de3da, transparent 62%);
-  animation: aurora-b 30s ease-in-out infinite alternate;
 }
 .aurora-3 {
   top: 28%;
   left: 34%;
   opacity: 0.12;
   background: radial-gradient(circle at 50% 50%, #ff9a52, transparent 65%);
-  animation: aurora-c 36s ease-in-out infinite alternate;
-}
-@keyframes aurora-a {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(12vmax, 9vmax, 0) scale(1.18);
-  }
-}
-@keyframes aurora-b {
-  from {
-    transform: translate3d(0, 0, 0) scale(1.1);
-  }
-  to {
-    transform: translate3d(-10vmax, -8vmax, 0) scale(0.95);
-  }
-}
-@keyframes aurora-c {
-  from {
-    transform: translate3d(0, 0, 0) scale(0.9);
-  }
-  to {
-    transform: translate3d(-9vmax, 7vmax, 0) scale(1.25);
-  }
 }
 .page {
   width: 100%;
@@ -212,7 +189,7 @@ button {
 .appbar-inner {
   max-width: var(--page);
   margin: 0 auto;
-  padding: 0.6rem 1rem;
+  padding: 0.4rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -225,12 +202,12 @@ button {
   border-radius: var(--r-full);
 }
 .appbar-logo {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   flex: none;
 }
 .appbar-title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -243,9 +220,9 @@ button {
 .nav-link {
   display: inline-flex;
   align-items: center;
-  padding: 0.5rem 0.85rem;
+  padding: 0.35rem 0.8rem;
   border-radius: var(--r-full);
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--on-surface-variant);
   transition: background 0.15s ease, color 0.15s ease;
@@ -288,31 +265,40 @@ button {
   animation: live-pulse 1.6s ease-out infinite;
 }
 .ticker-viewport {
+  position: relative;
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  /* Fade the headlines in/out at both edges. */
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 4%,
-    #000 96%,
-    transparent
-  );
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 4%,
-    #000 96%,
-    transparent
-  );
+}
+/* Edge fades as static painted overlays — far cheaper than masking an animated
+   layer (a CSS mask forces per-frame re-compositing of the scrolling track). */
+.ticker-viewport::before,
+.ticker-viewport::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2.5rem;
+  z-index: 1;
+  pointer-events: none;
+}
+.ticker-viewport::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--surface), transparent);
+}
+.ticker-viewport::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--surface), transparent);
 }
 .ticker-track {
   display: inline-flex;
   align-items: center;
   flex: none;
   white-space: nowrap;
+  /* Promote to its own GPU layer so the scroll is composited, not repainted. */
   will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
   animation: ticker-scroll 20s linear infinite;
 }
 .ticker:hover .ticker-track {
@@ -341,12 +327,13 @@ button {
 }
 @keyframes ticker-scroll {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   to {
     /* shift by exactly one group width — every group is identical, so the
-       reset is seamless and there's never an empty gap */
-    transform: translateX(calc(-1 * var(--ticker-shift, 0px)));
+       reset is seamless and there's never an empty gap. translate3d keeps it
+       on the compositor (GPU) rather than triggering layout/paint. */
+    transform: translate3d(calc(-1 * var(--ticker-shift, 0px)), 0, 0);
   }
 }
 
@@ -609,7 +596,7 @@ button {
 
 /* feed controls (search / date / sort) */
 .controls {
-  max-width: var(--feed);
+  max-width: var(--page);
   margin: 0 auto 1.5rem;
   display: flex;
   gap: 0.6rem;
