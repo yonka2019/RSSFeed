@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import Icon from "@/components/Icon";
 import LocalTime from "@/components/LocalTime";
+import NewsTicker from "@/components/NewsTicker";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { labelStyle, parseLabels } from "@/lib/format";
@@ -34,6 +35,7 @@ export default async function ArticlePage({ params }: Params) {
   return (
     <div className="shell">
       <SiteHeader />
+      <NewsTicker />
       <main className="main">
         <div className="page">
           <article className="article">

@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import AutoRefresh from "@/components/AutoRefresh";
 import FeedChannels from "@/components/FeedChannels";
 import Icon from "@/components/Icon";
+import NewsTicker from "@/components/NewsTicker";
 import LocalTime from "@/components/LocalTime";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -139,6 +140,7 @@ export default async function Home({ searchParams }: Props) {
     <div className="shell">
       <AutoRefresh version={version} />
       <SiteHeader />
+      <NewsTicker />
       <main className="main">
         <div className="page">
           {allLabels.length > 0 && (

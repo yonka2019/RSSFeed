@@ -93,6 +93,15 @@ panel and Confluence's RSS macro. Dark-only theme, Hebrew/RTL supported.
 - **Feed items** fade/slide in with a per-item stagger (`animation-delay` set inline
   in `app/page.tsx`, `item-in` keyframes). Uses `backwards` fill (not `forwards`) so
   hover/active transforms keep working after entry.
+- **News ticker**: a scrolling headline bar under the nav on the home and article
+  pages. `components/NewsTicker.tsx` (server) lists the 5 most recent published posts
+  (`listPublished(5)`) and renders the "Latest" label; `components/TickerMarquee.tsx`
+  (client) does the scrolling. The marquee renders the headlines as one "group",
+  measures it + the viewport (ResizeObserver), repeats the group enough times to
+  always overflow the viewport (so **never any empty space**), and shifts the track by
+  exactly one group width per loop via `--ticker-shift` (`ticker-scroll` keyframes) —
+  seamless because every group is identical. Constant px/s speed, pauses on hover,
+  edges masked. Returns null when there's no news; updates via auto-refresh.
 
 ## Commands
 
