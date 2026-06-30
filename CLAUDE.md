@@ -117,9 +117,16 @@ see the table in `README.md`.
 
 ## Build & deploy
 
-- **Dockerfile**: 3-stage build (prod deps → `npm run build` → slim `node:20` runner
-  that copies `.next` + `node_modules`, runs as `node`, exposes 3000). `MONGODB_URI`
-  is supplied at runtime. Has a `HEALTHCHECK` that fetches `/`.
+- **Dockerfile**: 2-stage build on `node:20-alpine`, using Next.js **standalone
+  output** (`output: "standalone"` in `next.config.mjs`). Builder (`npm ci` +
+  `npm run build`) → runner copies only `.next/standalone` (minimal server + traced
+  node_modules) and `.next/static`, runs `node server.js` as user `node`,
+  `HOSTNAME=0.0.0.0`, exposes 3000. Image is **~242MB** (was ~650MB). Two things keep
+  it down, do NOT undo them: (1) standalone output (drops the ~140MB build-only SWC
+  binaries + full `next`/`typescript`); (2) `outputFileTracingExcludes` strips
+  Sharp's `@img` (~33MB) and `typescript` since the app uses plain `<img>`, never
+  `next/image` — if you ever add `next/image`, remove the `@img`/`sharp` excludes.
+  `MONGODB_URI` is supplied at runtime; a `HEALTHCHECK` fetches `/`.
 - **CI** (`.github/workflows/on-tag.yml`): on pushing a `v*` tag, builds the image,
   exports it as a `.tar`, attaches it to a GitHub Release, and uploads it to
   `s3://y.packages/rssfeed/`. No image registry push — distribution is via the tar.
